@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sahar-Al-Abeer POS</title>
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -16,6 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
@@ -25,16 +27,29 @@
       <button id="logoutBtn" class="btn-logout">Logout</button>
     </div>
 
-    <div class="card row" style="gap:10px;align-items:center">
+    <div class="card row top-actions" style="gap:10px;align-items:center">
       <button id="btnExport" class="ghost">Export JSON</button>
     </div>
 
     <!-- KPIs -->
     <div class="kpis">
-      <div class="card kpi"><div class="muted">On-hand Stock Value</div><div id="kpiStockVal" class="val">—</div></div>
-      <div class="card kpi"><div class="muted">Total Revenue</div><div id="kpiRevenue" class="val">—</div></div>
-      <div class="card kpi"><div class="muted">COGS (Moving Avg)</div><div id="kpiCogs" class="val">—</div></div>
-      <div class="card kpi"><div class="muted">Gross Profit / Share(÷4)</div><div id="kpiProfit" class="val">—</div><div id="kpiPartner" class="muted">—</div></div>
+      <div class="card kpi">
+        <div class="muted">On-hand Stock Value</div>
+        <div id="kpiStockVal" class="val">—</div>
+      </div>
+      <div class="card kpi">
+        <div class="muted">Total Revenue</div>
+        <div id="kpiRevenue" class="val">—</div>
+      </div>
+      <div class="card kpi">
+        <div class="muted">COGS (Moving Avg)</div>
+        <div id="kpiCogs" class="val">—</div>
+      </div>
+      <div class="card kpi">
+        <div class="muted">Gross Profit / Share(÷4)</div>
+        <div id="kpiProfit" class="val">—</div>
+        <div id="kpiPartner" class="muted">—</div>
+      </div>
     </div>
 
     <!-- Tabs -->
@@ -56,15 +71,11 @@
 
     <!-- CREATE SALE -->
     <section class="card" data-panel="sale-new">
-      <div class="row" style="margin:8px 0">
-        <input id="saleSearch" placeholder="Search product (SKU/Name)" style="max-width:320px">
-      </div>
       <div class="grid grid-5">
         <div><label>Product</label><select id="saleProduct"></select></div>
-        <div><label>Qty</label><input id="saleQty" type="number" min="1" value="1"/></div>
-        <div><label>Unit Price (PKR)</label><input id="salePrice" type="number" min="1"/></div>
-        <div><label>Line Discount</label><input id="saleDisc" type="number" min="0" value="0"/></div>
-        <!--<div style="align-self:end"><button id="addSale">Quick Add</button></div>-->
+        <div><label>Qty</label><input id="saleQty" type="number" min="1" value="1" /></div>
+        <div><label>Unit Price (PKR)</label><input id="salePrice" type="number" min="1" /></div>
+        <div><label>Line Discount</label><input id="saleDisc" type="number" min="0" value="0" /></div>
       </div>
 
       <div class="note" style="margin-top:8px; font-size:14px;">
@@ -81,7 +92,17 @@
 
       <div class="card" style="padding:0;margin-top:8px">
         <table>
-          <thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Unit</th><th class="right">Line Disc</th><th class="right">Line Gross</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Product</th>
+              <th class="right">Qty</th>
+              <th class="right">Unit</th>
+              <th class="right">Line Disc</th>
+              <th class="right">Line Gross</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="cartBody"></tbody>
         </table>
       </div>
@@ -105,10 +126,16 @@
         <table>
           <thead>
             <tr>
-              <th>Date</th><th>Product</th>
-              <th class="right">Qty</th><th class="right">Unit</th>
-              <th class="right">Disc</th><th class="right">Revenue</th>
-              <th class="right">Cost@Sale</th><th class="right">Profit</th>
+              <th>Date</th>
+              <th>Product</th>
+              <th class="right">Qty</th>
+              <th class="right">Unit</th>
+              <th class="right">Disc</th>
+              <th class="right">Revenue</th>
+              <th class="right">Cost@Sale</th>
+              <th class="right">Profit</th>
+              <th>Created By</th>
+              <th>Created At</th>
             </tr>
           </thead>
           <tbody id="salesBody"></tbody>
@@ -118,15 +145,11 @@
 
     <!-- CREATE PURCHASE -->
     <section class="card" data-panel="purchase-new" style="display:none">
-      <div class="row" style="margin:8px 0">
-        <input id="buySearch" placeholder="Search product (SKU/Name)" style="max-width:320px">
-      </div>
       <div class="grid grid-5">
         <div><label>Product</label><select id="buyProduct"></select></div>
-        <div><label>Qty</label><input id="buyQty" type="number" min="1" value="10"/></div>
-        <div><label>Unit Cost (PKR)</label><input id="buyCost" type="number" min="1"/></div>
-        <div><label>Supplier (optional)</label><input id="buySupplier"/></div>
-        <!--<div style="align-self:end"><button id="addBuy">Quick Add</button></div>-->
+        <div><label>Qty</label><input id="buyQty" type="number" min="1" value="10" /></div>
+        <div><label>Unit Cost (PKR)</label><input id="buyCost" type="number" min="1" /></div>
+        <div><label>Supplier (optional)</label><input id="buySupplier" /></div>
       </div>
       <div class="row" style="margin:8px 0">
         <button id="btnAddToPO" class="secondary">Add line to bill</button>
@@ -135,7 +158,16 @@
       </div>
       <div class="card table-wrap" style="padding:0;margin-top:8px">
         <table>
-          <thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Unit Cost</th><th class="right">Line Total</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Product</th>
+              <th class="right">Qty</th>
+              <th class="right">Unit Cost</th>
+              <th class="right">Line Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody id="poBody"></tbody>
         </table>
       </div>
@@ -150,9 +182,14 @@
         <table>
           <thead>
             <tr>
-              <th>Date</th><th>Product</th>
-              <th class="right">Qty</th><th class="right">Unit Cost</th>
-              <th class="right">Total</th><th>Supplier</th>
+              <th>Date</th>
+              <th>Product</th>
+              <th class="right">Qty</th>
+              <th class="right">Unit Cost</th>
+              <th class="right">Total</th>
+              <th>Supplier</th>
+              <th>Created By</th>
+              <th>Created At</th>
             </tr>
           </thead>
           <tbody id="buysBody"></tbody>
@@ -169,7 +206,20 @@
       </div>
       <div class="card table-scroll" style="padding:0">
         <table>
-          <thead><tr><th>SKU</th><th>Name</th><th class="right">Selling</th><th class="right">Purchase</th><th class="right">Avg Cost</th><th class="right">Stock</th></tr></thead>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Name</th>
+              <th class="right">Selling</th>
+              <th class="right">Purchase</th>
+              <th class="right">Avg Cost</th>
+              <th class="right">Stock</th>
+              <th>Created By</th>
+              <th>Created At</th>
+              <th>Updated By</th>
+              <th>Updated At</th>
+            </tr>
+          </thead>
           <tbody id="prodBody"></tbody>
         </table>
       </div>
@@ -178,22 +228,40 @@
     <!-- EXPENSES -->
     <section class="card" data-panel="expenses" style="display:none">
       <div class="grid grid-5">
-        <div><label>Date</label><input id="exDate" type="date"/></div>
-        <div><label>Category</label><select id="exCat"><option>Rent</option><option>Packaging</option><option>Delivery</option><option>Marketing</option><option>Other</option></select></div>
-        <div><label>Amount</label><input id="exAmt" type="number" min="1"/></div>
-        <div><label>Note</label><input id="exNote"/></div>
+        <div><label>Date</label><input id="exDate" type="date" /></div>
+        <div><label>Category</label><select id="exCat">
+            <option>Rent</option>
+            <option>Packaging</option>
+            <option>Delivery</option>
+            <option>Marketing</option>
+            <option>Other</option>
+          </select></div>
+        <div><label>Amount</label><input id="exAmt" type="number" min="1" /></div>
+        <div><label>Note</label><input id="exNote" /></div>
         <div style="align-self:end"><button id="addExpense">Add Expense</button></div>
       </div>
       <div class="card table-wrap" style="padding:0;margin-top:12px">
-        <table><thead><tr><th>Date</th><th>Category</th><th>Note</th><th class="right">Amount</th></tr></thead><tbody id="exBody"></tbody></table>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Note</th>
+              <th class="right">Amount</th>
+              <th>Created By</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody id="exBody"></tbody>
+        </table>
       </div>
     </section>
 
     <!-- REPORTS -->
     <section class="card" data-panel="reports" style="display:none">
       <div class="row" style="margin-bottom:10px">
-        <div><label>From</label><input id="rFrom" type="date"/></div>
-        <div><label>To</label><input id="rTo" type="date"/></div>
+        <div><label>From</label><input id="rFrom" type="date" /></div>
+        <div><label>To</label><input id="rTo" type="date" /></div>
         <div style="align-self:end"><button id="runReports">Run</button></div>
         <div class="spacer"></div>
         <input id="repSearch" placeholder="Search in results" style="max-width:260px">
@@ -210,11 +278,37 @@
         </div>
         <h3 style="margin-top:12px">Daily Breakdown</h3>
         <div class="card table-wrap" style="padding:0;margin-bottom:10px">
-          <table><thead><tr><th>Date</th><th class="right">Orders</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">GP</th></tr></thead><tbody id="dailyBody"></tbody></table>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="right">Orders</th>
+                <th class="right">Qty</th>
+                <th class="right">Revenue</th>
+                <th class="right">COGS</th>
+                <th class="right">GP</th>
+              </tr>
+            </thead>
+            <tbody id="dailyBody"></tbody>
+          </table>
         </div>
         <h3>Product Performance</h3>
         <div class="card table-wrap" style="padding:0">
-          <table><thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">Profit</th><th class="right">Margin%</th><th class="right">On-hand</th></tr></thead><tbody id="prodPerfBody"></tbody></table>
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Product</th>
+                <th class="right">Qty</th>
+                <th class="right">Revenue</th>
+                <th class="right">COGS</th>
+                <th class="right">Profit</th>
+                <th class="right">Margin%</th>
+                <th class="right">On-hand</th>
+              </tr>
+            </thead>
+            <tbody id="prodPerfBody"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -222,17 +316,19 @@
     <!-- Product Modal -->
     <div id="prodModal" class="modal-backdrop">
       <div class="modal">
-        <header><h3 id="prodModalTitle">New Product</h3><button id="prodClose" class="outline">✕</button></header>
+        <header>
+          <h3 id="prodModalTitle">New Product</h3><button id="prodClose" class="outline">✕</button>
+        </header>
         <div class="body">
           <div class="grid-2">
-            <div><label>SKU</label><input id="mSku" placeholder="e.g., SKU-23"/></div>
-            <div><label>Name</label><input id="mName" placeholder="Perfume name"/></div>
+            <div><label>SKU</label><input id="mSku" placeholder="e.g., SKU-23" /></div>
+            <div><label>Name</label><input id="mName" placeholder="Perfume name" /></div>
           </div>
           <div class="grid-2">
-            <div><label>Selling Price (PKR)</label><input id="mSell" type="number" min="1"/></div>
-            <div><label>Purchase Price (PKR)</label><input id="mBuy" type="number" min="1"/></div>
+            <div><label>Selling Price (PKR)</label><input id="mSell" type="number" min="1" /></div>
+            <div><label>Purchase Price (PKR)</label><input id="mBuy" type="number" min="1" /></div>
           </div>
-          <div><label>Low-stock threshold</label><input id="mLow" type="number" min="0" value="5"/></div>
+          <div><label>Low-stock threshold</label><input id="mLow" type="number" min="0" value="5" /></div>
           <div class="muted">New product starts with stock 0 & avg cost 0. Stock comes from purchases.</div>
         </div>
         <footer><button id="prodCancel" class="outline">Cancel</button><button id="prodSave">Save</button></footer>
@@ -243,4 +339,5 @@
   <!-- App boot -->
   <script type="module" src="js/app.js"></script>
 </body>
+
 </html>

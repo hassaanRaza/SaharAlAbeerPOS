@@ -2,16 +2,16 @@
 import { auth, db } from './firebase.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { $, PKR, notify } from './utils.js';
+import { $, PKR, notify, asName } from './utils.js';
 import { switchTabs } from './ui.js';
 
 import {
   refs, loadProducts, bindProductSearch, bindProductModal,
-  quickPurchase, addLineToPO, savePO, renderPO, loadPurchases
+  addLineToPO, savePO, renderPO, loadPurchases
 } from './inventory.js';
 
 import {
-  quickSale, addCartLine, renderCart, bindCartInputs,
+  addCartLine, renderCart, bindCartInputs,
   saveCart, loadSales, invoice
 } from './sales.js';
 
@@ -22,7 +22,7 @@ import { products, lastSaleId } from './state.js';
 // ---------------- Auth guard + topbar ----------------
 onAuthStateChanged(auth, (u) => {
   if (!u) location.href = 'index.html';
-  else $('#who').textContent = `Signed in: ${u.email}`;
+  else $('#who').textContent = `Signed in: ${asName(u.email)}`;
 });
 
 $('#logoutBtn').onclick = async () => {
@@ -33,12 +33,10 @@ $('#logoutBtn').onclick = async () => {
 };
 
 // ---------------- Tabs ----------------
-switchTabs(); // keeps show/hide of [data-panel] in sync with .tab buttons
+switchTabs();
 
-// Lazy-load flags for heavy lists
 const loaded = { sales: false, purchases: false };
 
-// When a tab is clicked, load its data on demand
 document.querySelectorAll('.tabs .tab').forEach((btn) => {
   btn.addEventListener('click', async () => {
     const tab = btn.getAttribute('data-tab');
@@ -67,25 +65,16 @@ $('#btnExport').onclick = async () => {
   a.click();
 };
 
-// ---------------- Initial load (fast path) ----------------
-await loadProducts();        // lightweight + needed everywhere
-await loadExpenses();        // small list
+// ---------------- Initial load ----------------
+await loadProducts();
+await loadExpenses();
 bindProductSearch();
 bindProductModal();
 bindReportSearch();
 bindCartInputs();
 renderPO();
 renderCart();
-await renderKPIs();          // KPIs at start
-
-// ---------------- Quick actions ----------------
-/*document.getElementById('addBuy').onclick = async () => {
-  await quickPurchase();
-  await loadProducts();
-  if (loaded.purchases) await loadPurchases(); // refresh history only if previously loaded
-  await renderKPIs();
-  renderPO(); // recalculates PO button text
-};*/
+await renderKPIs();
 
 document.getElementById('btnAddToPO').onclick = () => { addLineToPO(); };
 document.getElementById('btnSavePO').onclick = async () => {
@@ -94,13 +83,6 @@ document.getElementById('btnSavePO').onclick = async () => {
   if (loaded.purchases) await loadPurchases();
   await renderKPIs();
 };
-
-/*document.getElementById('addSale').onclick = async () => {
-  await quickSale(refs);
-  await loadProducts();
-  if (loaded.sales) await loadSales();
-  await renderKPIs();
-};*/
 
 document.getElementById('btnAddToCart').onclick = () => addCartLine(refs);
 document.getElementById('btnSaveSale').onclick = async () => {
@@ -112,7 +94,7 @@ document.getElementById('btnSaveSale').onclick = async () => {
 
 document.getElementById('btnInvoice').onclick = () => invoice(lastSaleId);
 
-// ---------------- KPIs (client aggregates) ----------------
+// ---------------- KPIs ----------------
 async function renderKPIs() {
   const stockVal = products.reduce((s, p) => s + (p.stock || 0) * (p.avgCost || 0), 0);
   const sSnap = await getDocs(collection(db, 'sales'));
@@ -130,3 +112,5 @@ async function renderKPIs() {
 
 // ---------------- Reports ----------------
 document.getElementById('runReports').onclick = runReports;
+
+document.getElementById('addExpense').onclick = addExpense;
