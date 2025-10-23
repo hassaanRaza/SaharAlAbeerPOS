@@ -1,13 +1,15 @@
 import { db } from './firebase.js';
-import { $, PKR, today } from './utils.js';
+import { $, PKR, today, notify } from './utils.js';
 import { collection, addDoc, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const C = { expenses: collection(db,'expenses') };
 
 export async function addExpense(){
   const e = { date: $('#exDate').value||today(), category: $('#exCat').value, amount: Number($('#exAmt').value||0), note: $('#exNote').value||'', createdAt: Date.now() };
-  if(!e.amount) return alert('Enter amount');
-  await addDoc(C.expenses, e); await loadExpenses();
+  if(!e.amount) return notify.error('Please enter a valid amount.');
+await addDoc(C.expenses, e);
+await loadExpenses();
+notify.toast('Expense added');
 }
 export async function loadExpenses(){
   const snap = await getDocs(query(C.expenses, orderBy('createdAt','desc')));

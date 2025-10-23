@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { $, PKR, today, filterProducts, jsPDF } from './utils.js';
+import { $, PKR, today, filterProducts, jsPDF, notify } from './utils.js';
 import { products, setLastSaleId } from './state.js';
 import { collection, doc, getDocs, getDoc, addDoc, updateDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
@@ -18,8 +18,9 @@ export async function loadSales(){
 export async function quickSale(sel){
   const { saleProduct, saleQty, salePrice, saleDisc } = sel;
   const sku = saleProduct.value; const qty = Number(saleQty.value||0); const unit = Number(salePrice.value||0); const disc=Number(saleDisc.value||0);
-  const p = products.find(x=>x.sku===sku); if(!p) return alert('Select product');
-  if(qty<=0 || unit<=0) return alert('Enter valid sale'); if(qty>(p.stock||0)) return alert('Not enough stock');
+  const p = products.find(x=>x.sku===sku); if(!p) return notify.error('Select a product first.');
+  if(qty<=0 || unit<=0) return notify.error('Enter valid quantity and unit price.');
+  if(qty>(p.stock||0)) return notify.warn('Not enough stock for this sale.');
   const costAtSale = p.avgCost||0; const revenue = Math.max(0, unit*qty - disc);
   const pref = doc(db,'products', sku); await updateDoc(pref,{ stock:(p.stock||0)-qty });
   const sRef = await addDoc(C.sales,{ date: today(), sku, qty, unitPrice:unit, lineDiscount:disc, revenue, costAtSale, createdAt:Date.now() });
@@ -50,15 +51,15 @@ export function bindCartInputs(){ $('#saleHeaderDisc').oninput = updateTotals; }
 export function addCartLine(sel){
   const { saleProduct, saleQty, salePrice, saleDisc } = sel;
   const sku = saleProduct.value; const qty = Number(saleQty.value||0); const unit = Number(salePrice.value||0); const disc = Number(saleDisc.value||0);
-  const p = products.find(x=>x.sku===sku); if(!p) return alert('Select product');
-  if(qty<=0 || unit<=0) return alert('Enter valid qty/unit');
-  if(qty>(p.stock||0)) return alert('Not enough stock');
+  const p = products.find(x=>x.sku===sku); if(!p) return notify.error('Select a product first.');
+  if(qty<=0 || unit<=0) return notify.error('Enter valid quantity and unit price.');
+  if(qty>(p.stock||0)) return notify.warn('Not enough stock.');
   cart.push({ sku, name:p.name, qty, unit, disc, lineGross:qty*unit, costAtSale:p.avgCost||0 });
   renderCart();
 }
 
 export async function saveCart(){
-  if(!cart.length) return alert('Cart empty');
+  if(!cart.length) return notify.error('Cart is empty.');
   const orderId = `SO-${Date.now()}`;
   const hdrDisc = Number($('#saleHeaderDisc').value||0);
   const coupon = ($('#saleCoupon').value||'').trim();
@@ -70,19 +71,19 @@ export async function saveCart(){
 
     const ref = doc(db,'products', line.sku);
     const snap = await getDoc(ref); const p = snap.data();
-    if(line.qty>(p.stock||0)) { alert(`Insufficient stock for ${line.sku}`); return; }
+    if(line.qty>(p.stock||0)) { notify.warn(`Insufficient stock for ${line.sku}`); return; }
     await updateDoc(ref,{ stock:(p.stock||0)-line.qty });
 
     const sRef = await addDoc(C.sales,{ orderId, date: today(), sku: line.sku, qty: line.qty, unitPrice: line.unit, lineDiscount: line.disc||0, headerDiscountShare: Math.round(hdrShare), revenue: Math.round(revenue), costAtSale: line.costAtSale, coupon: coupon||null, createdAt: Date.now() });
     setLastSaleId(sRef.id);
   }
   cart.length = 0; renderCart(); updateTotals();
-  alert(`Sale saved: ${orderId}`);
+  notify.success(`Sale saved: ${orderId}`);
 }
 
 // Invoice for last line
 export async function invoice(lastId){
-  if(!lastId) return alert('Do a sale first.');
+  if(!lastId) return notify.info('Do a sale first to generate an invoice.');
   const sDoc = await getDoc(doc(db,'sales', lastId)); const s = sDoc.data();
   const pdf = new jsPDF(); pdf.setFontSize(16); pdf.text('Sahar-Al-Abeer',14,16);
   pdf.setFontSize(10); pdf.text('Invoice',14,24); pdf.text(`Date: ${s.date}`,14,30);

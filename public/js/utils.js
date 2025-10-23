@@ -5,3 +5,28 @@ export const toCSV = (rows)=> rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'"
 export const includes = (h, n)=> String(h||'').toLowerCase().includes(String(n||'').toLowerCase());
 export const filterProducts = (list,q)=> !q?list:list.filter(p=>includes(p.sku,q)||includes(p.name,q));
 export const jsPDF = window.jspdf.jsPDF;
+
+// --- SweetAlert2 helpers ---
+export const notify = {
+  success: (msg, title='Success') =>
+    Swal.fire({ icon:'success', title, text: msg, timer: 1800, showConfirmButton:false }),
+
+  error: (msg, title='Error') =>
+    Swal.fire({ icon:'error', title, text: msg }),
+
+  info: (msg, title='Note') =>
+    Swal.fire({ icon:'info', title, text: msg }),
+
+  warn: (msg, title='Warning') =>
+    Swal.fire({ icon:'warning', title, text: msg }),
+
+  toast: (msg, icon='success') =>
+    Swal.fire({ toast:true, position:'top-end', icon, title: msg, timer:1800, showConfirmButton:false }),
+
+  confirm: (msg, title='Are you sure?', confirmText='Yes') =>
+    Swal.fire({
+      title, text: msg, icon:'warning',
+      showCancelButton:true, confirmButtonText:confirmText
+    }).then(r => r.isConfirmed)
+};
+

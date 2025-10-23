@@ -4,8 +4,16 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sahar-Al-Abeer POS</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" sizes="32x32" href="/favicon.svg"> <!-- fallback; SVG scales -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"> <!-- optional -->
+  <meta name="theme-color" content="#0ea5e9">
+
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/app.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
@@ -76,7 +84,7 @@
       </div>
 
       <h3 style="margin-top:16px">Recent Sales</h3>
-      <div class="card" style="padding:0">
+      <div class="card table-scroll" style="padding:0">
         <table>
           <thead><tr><th>Date</th><th>Product</th><th class="right">Qty</th><th class="right">Unit</th><th class="right">Disc</th><th class="right">Revenue</th><th class="right">Cost@Sale</th><th class="right">Profit</th></tr></thead>
           <tbody id="salesBody"></tbody>
@@ -99,12 +107,12 @@
         <div class="spacer"></div>
         <button id="btnSavePO">Save Purchase (0)</button>
       </div>
-      <div class="card" style="padding:0;margin-top:8px">
+      <div class="card table-wrap" style="padding:0;margin-top:8px">
         <table><thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Unit Cost</th><th class="right">Line Total</th><th>Actions</th></tr></thead><tbody id="poBody"></tbody></table>
       </div>
 
       <h3 style="margin-top:16px">Recent Purchases</h3>
-      <div class="card" style="padding:0">
+      <div class="card table-scroll" style="padding:0">
         <table><thead><tr><th>Date</th><th>Product</th><th class="right">Qty</th><th class="right">Unit Cost</th><th class="right">Total</th><th>Supplier</th></tr></thead><tbody id="buysBody"></tbody></table>
       </div>
     </section>
@@ -116,7 +124,7 @@
         <div class="spacer"></div>
         <button id="btnNew">New Product</button>
       </div>
-      <div class="card" style="padding:0">
+      <div class="card table-scroll" style="padding:0">
         <table><thead><tr><th>SKU</th><th>Name</th><th class="right">Selling</th><th class="right">Purchase</th><th class="right">Avg Cost</th><th class="right">Stock</th></tr></thead><tbody id="prodBody"></tbody></table>
       </div>
     </section>
@@ -130,7 +138,7 @@
         <div><label>Note</label><input id="exNote"/></div>
         <div style="align-self:end"><button id="addExpense">Add Expense</button></div>
       </div>
-      <div class="card" style="padding:0;margin-top:12px">
+      <div class="card table-wrap" style="padding:0;margin-top:12px">
         <table><thead><tr><th>Date</th><th>Category</th><th>Note</th><th class="right">Amount</th></tr></thead><tbody id="exBody"></tbody></table>
       </div>
     </section>
@@ -146,7 +154,7 @@
         <button id="expDaily" class="ghost">Export Daily CSV</button>
         <button id="expProduct" class="ghost">Export Product CSV</button>
       </div>
-      <div class="card" id="reportArea">
+      <div class="card table-wrap" id="reportArea">
         <h3>Sales Summary</h3>
         <div class="row">
           <div class="chip">Revenue: <b id="rRev">—</b></div>
@@ -155,9 +163,9 @@
           <div class="chip">Orders: <b id="rOrders">—</b></div>
         </div>
         <h3 style="margin-top:12px">Daily Breakdown</h3>
-        <div class="card" style="padding:0;margin-bottom:10px"><table><thead><tr><th>Date</th><th class="right">Orders</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">GP</th></tr></thead><tbody id="dailyBody"></tbody></table></div>
+        <div class="card table-wrap" style="padding:0;margin-bottom:10px"><table><thead><tr><th>Date</th><th class="right">Orders</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">GP</th></tr></thead><tbody id="dailyBody"></tbody></table></div>
         <h3>Product Performance</h3>
-        <div class="card" style="padding:0"><table><thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">Profit</th><th class="right">Margin%</th><th class="right">On-hand</th></tr></thead><tbody id="prodPerfBody"></tbody></table></div>
+        <div class="card table-wrap" style="padding:0"><table><thead><tr><th>SKU</th><th>Product</th><th class="right">Qty</th><th class="right">Revenue</th><th class="right">COGS</th><th class="right">Profit</th><th class="right">Margin%</th><th class="right">On-hand</th></tr></thead><tbody id="prodPerfBody"></tbody></table></div>
       </div>
     </section>
 

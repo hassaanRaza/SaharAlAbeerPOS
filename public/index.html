@@ -4,7 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sahar-Al-Abeer POS — Sign in</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" sizes="32x32" href="/favicon.svg"> <!-- fallback; SVG scales -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png"> <!-- optional -->
+  <meta name="theme-color" content="#0ea5e9">
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -73,7 +80,7 @@
 
   <script>
     // auto-redirect if already signed in
-    firebase.auth().onAuthStateChanged(u => { if (u) location.href = 'home.html'; });
+    firebase.auth().onAuthStateChanged(u => { if (u) location.href = 'home'; });
 
     // show/hide password
     const pass = document.getElementById('pass');
@@ -92,7 +99,7 @@
       if(!email || !pwd){ err.textContent = 'Please enter email and password.'; return; }
       try{
         await firebase.auth().signInWithEmailAndPassword(email, pwd);
-        location.href = 'home.html';
+        location.href = 'home';
       }catch(e){
         err.textContent = (e.message || 'Login failed').replace('Firebase:', '').trim();
       }

@@ -2,6 +2,7 @@ import { auth, db } from './firebase.js';
 import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { $, PKR } from './utils.js';
+import { notify } from './utils.js';
 import { switchTabs } from './ui.js';
 import { refs, loadProducts, bindProductSearch, bindProductModal, quickPurchase, addLineToPO, savePO, renderPO, loadPurchases } from './inventory.js';
 import { quickSale, cart, addCartLine, renderCart, bindCartInputs, saveCart, loadSales, invoice } from './sales.js';
@@ -14,7 +15,12 @@ onAuthStateChanged(auth, u=>{
   if(!u) location.href='index.html';
   else $('#who').textContent = `Signed in: ${u.email}`;
 });
-$('#logoutBtn').onclick = async ()=>{ await signOut(auth); location.href='index.html'; };
+$('#logoutBtn').onclick = async ()=>{
+  const ok = await notify.confirm('You will be signed out.', 'Logout?', 'Logout');
+  if(!ok) return;
+  await signOut(auth);
+  location.href='/';
+};
 
 // Tabs
 switchTabs();

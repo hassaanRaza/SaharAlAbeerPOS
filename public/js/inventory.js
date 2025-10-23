@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { $, PKR, today, filterProducts } from './utils.js';
+import { $, PKR, today, filterProducts, notify } from './utils.js';
 import { collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { products, setProducts } from './state.js';
 import { modal } from './ui.js';
@@ -115,16 +115,17 @@ export function bindProductModal(){
   document.getElementById('prodSave').onclick = async ()=>{
     const sku=(mSku.value||'').trim(), name=(mName.value||'').trim();
     const sp=Number(mSell.value||0), pp=Number(mBuy.value||0), low=Number(mLow.value||0);
-    if(!sku || !name || sp<=0 || pp<=0) return alert('Fill all fields');
+    if(!sku || !name || sp<=0 || pp<=0) return notify.error('Please fill all fields with valid numbers.');
     if(btnNew.dataset.sku){ // update
       await updateDoc(doc(db,'products',sku), { name, sellingPrice:sp, purchasePrice:pp, lowStockThreshold:low });
     }else{ // create
       const exists = await getDoc(doc(db,'products',sku));
-      if(exists.exists()) return alert('SKU already exists');
+      if(exists.exists()) return notify.error('This SKU already exists.');
       await setDoc(doc(db,'products',sku), { sku, name, sellingPrice:sp, purchasePrice:pp, avgCost:0, stock:0, lowStockThreshold:low, createdAt:Date.now() });
     }
     modal.close(); btnNew.textContent='New Product'; btnNew.dataset.sku='';
     await loadProducts();
+    notify.toast(isUpdate ? 'Product updated' : 'Product created');
   };
 
   document.getElementById('prodCancel').onclick = ()=>{ btnNew.textContent='New Product'; btnNew.dataset.sku=''; };
@@ -133,11 +134,13 @@ export function bindProductModal(){
 // Quick purchase (single line) + bill (multi)
 export async function quickPurchase(){
   const sku = refs.buyProduct.value; const qty = Number(refs.buyQty.value||0); const cost = Number(refs.buyCost.value||0);
-  if(!sku || qty<=0 || cost<=0) return alert('Enter valid purchase');
-  const pref = doc(db,'products', sku); const psnap = await getDoc(pref); if(!psnap.exists()) return alert('Product missing');
+  if(!sku || qty<=0 || cost<=0) return notify.error('Enter valid product, quantity and cost.');
+  const pref = doc(db,'products', sku);
+  const psnap = await getDoc(pref); if(!psnap.exists()) return notify.error('Product not found.');
   const p = psnap.data(); const newStock=(p.stock||0)+qty; const newAvg = newStock>0 ? (((p.stock||0)*(p.avgCost||0)) + (qty*cost))/newStock : cost;
   await updateDoc(pref,{ stock:newStock, avgCost:newAvg, purchasePrice:cost });
   await addDoc(C.purchases,{ date: today(), sku, qty, unitCost: cost, totalCost: qty*cost, supplier: $('#buySupplier').value||null, createdAt: Date.now() });
+  notify.toast('Purchase added');
 }
 
 export const POCart = [];
@@ -151,13 +154,13 @@ function updatePOBtn(){ $('#btnSavePO').textContent = `Save Purchase (${POCart.l
 
 export function addLineToPO(){
   const sku = refs.buyProduct.value; const qty = Number(refs.buyQty.value||0); const cost = Number(refs.buyCost.value||0);
-  const p = products.find(x=>x.sku===sku); if(!p) return alert('Select product');
-  if(qty<=0 || cost<=0) return alert('Enter valid qty/cost');
+  const p = products.find(x=>x.sku===sku); if(!p) return notify.error('Select a product first.');
+  if(qty<=0 || cost<=0) return notify.error('Enter valid quantity and cost.');
   POCart.push({ sku, name:p.name, qty, cost, total:qty*cost }); renderPO();
 }
 
 export async function savePO(){
-  if(!POCart.length) return alert('No lines in bill');
+  if(!POCart.length) return notify.error('No lines in bill.');
   const poId = `PO-${Date.now()}`;
   for(const line of POCart){
     const ref = doc(db,'products', line.sku); const snap = await getDoc(ref); if(!snap.exists()) continue;
@@ -166,5 +169,6 @@ export async function savePO(){
     await updateDoc(ref,{ stock:newStock, avgCost:newAvg, purchasePrice:line.cost });
     await addDoc(C.purchases,{ orderId: poId, date: today(), sku: line.sku, qty: line.qty, unitCost: line.cost, totalCost: line.total, supplier: $('#buySupplier').value||null, createdAt: Date.now() });
   }
-  POCart.length = 0; renderPO(); alert(`Purchase saved: ${poId}`);
+  POCart.length = 0; renderPO();
+  notify.success(`Purchase saved: ${poId}`);
 }
