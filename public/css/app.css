@@ -421,3 +421,56 @@ tr.sel {
         margin-bottom: 20px;
     }
 }
+
+.val.negative {
+    color: #c0392b;
+}
+
+/* Five KPIs in a single row, responsive */
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+/* collapse nicely on smaller screens */
+@media (max-width: 1200px) {
+    .kpis {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 760px) {
+    .kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .kpis {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi .val {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.kpi .sub {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: .85;
+}
+
+.kpi .val.negative {
+    color: #dc2626;
+}
+
+/* red if negative */
+.kpi .val.positive {
+    color: inherit;
+}
+
+/* default */

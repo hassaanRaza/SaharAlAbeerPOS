@@ -32,6 +32,8 @@ $('#logoutBtn').onclick = async () => {
   location.href = '/';
 };
 
+window.renderKPIs = renderKPIs;
+
 // ---------------- Tabs ----------------
 switchTabs();
 
@@ -96,19 +98,54 @@ document.getElementById('btnInvoice').onclick = () => invoice(lastSaleId);
 
 // ---------------- KPIs ----------------
 async function renderKPIs() {
+  // Stock value
   const stockVal = products.reduce((s, p) => s + (p.stock || 0) * (p.avgCost || 0), 0);
-  const sSnap = await getDocs(collection(db, 'sales'));
-  const s = sSnap.docs.map((d) => d.data());
-  const revenue = s.reduce((x, y) => x + y.revenue, 0);
-  const cogs = s.reduce((x, y) => x + (y.costAtSale * y.qty), 0);
-  const gp = revenue - cogs;
 
+  // --- Sales ---
+  const sSnap = await getDocs(collection(db, 'sales'));
+  const s = sSnap.docs.map(d => d.data());
+  const revenue = s.reduce((x, y) => x + y.revenue, 0);
+  const cogs    = s.reduce((x, y) => x + (y.costAtSale * y.qty), 0);
+  const gp      = revenue - cogs;
+
+  // --- Expenses ---
+  const eSnap = await getDocs(collection(db, 'expenses'));
+  const totalExpenses = eSnap.docs.reduce((sum, d) => sum + (Number(d.data().amount) || 0), 0);
+
+  // --- Net Profit ---
+  const netProfit = gp - totalExpenses;
+
+  // Fill cards
   $('#kpiStockVal').textContent = PKR(stockVal);
-  $('#kpiRevenue').textContent = PKR(revenue);
-  $('#kpiCogs').textContent = PKR(cogs);
-  $('#kpiProfit').textContent = PKR(gp);
-  $('#kpiPartner').textContent = `Partner share (÷4): ${PKR(gp / 4)}`;
+  $('#kpiRevenue').textContent  = PKR(revenue);
+  $('#kpiCogs').textContent     = PKR(cogs);
+
+  $('#kpiProfit').textContent   = PKR(gp);
+  $('#kpiPartner').textContent  = `Partner share (÷4): ${PKR(gp / 4)}`;
+
+  const netEl = document.getElementById('kpiNetProfit');
+  if (netEl) {
+    netEl.textContent = PKR(netProfit);
+    netEl.classList.toggle('negative', netProfit < 0);
+    netEl.classList.toggle('positive', netProfit >= 0);
+  }
+
+  // NEW: Net profit note "Gross – Expenses"
+  const netNote = document.getElementById('kpiNetNote');
+  if (netNote) {
+    netNote.textContent = `Gross (${PKR(gp)}) – Expenses (${PKR(totalExpenses)})`;
+  }
+
+  // If you also show partner share of net:
+  const netPartner = document.getElementById('kpiNetPartner');
+  if (netPartner) {
+    netPartner.textContent = `Partner share (÷4): ${PKR(netProfit / 4)}`;
+  }
 }
+
+// Make callable from other modules (e.g., after adding an expense)
+window.renderKPIs = renderKPIs;
+
 
 // ---------------- Reports ----------------
 document.getElementById('runReports').onclick = runReports;

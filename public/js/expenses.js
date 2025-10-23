@@ -17,6 +17,9 @@ export async function addExpense() {
   await addDoc(C.expenses, e);
   await loadExpenses();
   notify.toast('Expense added');
+  if (window.renderKPIs) {
+    await window.renderKPIs();
+  }
 }
 
 export async function loadExpenses() {
