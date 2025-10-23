@@ -1,0 +1,47 @@
+import { db } from './firebase.js';
+import { $, PKR, toCSV } from './utils.js';
+import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { products } from './state.js';
+
+const C = { sales: collection(db,'sales') };
+
+const inRange = (d,f,t)=> (!f||d>=f) && (!t||d<=t);
+
+export async function runReports(){
+  const from=$('#rFrom').value||null, to=$('#rTo').value||null;
+  const sSnap = await getDocs(C.sales); const s = sSnap.docs.map(d=>d.data()).filter(x=>inRange(x.date,from,to));
+
+  const revenue = s.reduce((a,b)=>a+b.revenue,0), cogs = s.reduce((a,b)=>a+(b.costAtSale*b.qty),0), gp=revenue-cogs;
+  $('#rRev').textContent=PKR(revenue); $('#rCogs').textContent=PKR(cogs); $('#rGp').textContent=PKR(gp); $('#rOrders').textContent=s.length;
+
+  const byDate={}; s.forEach(x=>{ const d=x.date; byDate[d]||(byDate[d]={orders:0,qty:0,rev:0,cogs:0}); byDate[d].orders++; byDate[d].qty+=x.qty; byDate[d].rev+=x.revenue; byDate[d].cogs+=x.costAtSale*x.qty; });
+  const days=Object.keys(byDate).sort();
+  $('#dailyBody').innerHTML = days.map(d=>{ const x=byDate[d]; return `<tr><td>${d}</td><td class='right'>${x.orders}</td><td class='right'>${x.qty}</td><td class='right'>${PKR(x.rev)}</td><td class='right'>${PKR(x.cogs)}</td><td class='right'>${PKR(x.rev-x.cogs)}</td></tr>`}).join('') || `<tr><td colspan='6' class='muted'>No sales in range</td></tr>`;
+
+  const pMap = Object.fromEntries(products.map(p=>[p.sku,p]));
+  const byProd={}; s.forEach(x=>{ const p=pMap[x.sku]; byProd[x.sku]||(byProd[x.sku]={sku:x.sku,name:p?p.name:x.sku,qty:0,rev:0,cogs:0,stock:p?p.stock:0}); byProd[x.sku].qty+=x.qty; byProd[x.sku].rev+=x.revenue; byProd[x.sku].cogs+=x.costAtSale*x.qty; });
+  const list=Object.values(byProd).sort((a,b)=>b.rev-a.rev);
+  $('#prodPerfBody').innerHTML = list.map(x=>{ const prof=x.rev-x.cogs; const m=x.rev?((prof/x.rev)*100).toFixed(1):'0.0'; return `<tr><td>${x.sku}</td><td>${x.name}</td><td class='right'>${x.qty}</td><td class='right'>${PKR(x.rev)}</td><td class='right'>${PKR(x.cogs)}</td><td class='right'>${PKR(prof)}</td><td class='right'>${m}%</td><td class='right'>${x.stock}</td></tr>` }).join('');
+
+  // export handlers
+  document.getElementById('expDaily').onclick = ()=>{
+    const rows=[["Date","Orders","Qty","Revenue","COGS","GP"], ...days.map(d=>{const x=byDate[d];return[d,x.orders,x.qty,x.rev,x.cogs,x.rev-x.cogs]})];
+    const blob=new Blob([toCSV(rows)],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='daily_report.csv'; a.click();
+  };
+  document.getElementById('expProduct').onclick = ()=>{
+    const rows=[["SKU","Product","Qty","Revenue","COGS","Profit","Margin%","OnHand"], ...list.map(x=>{const prof=x.rev-x.cogs; const m=x.rev?((prof/x.rev)*100).toFixed(1):'0.0'; return [x.sku,x.name,x.qty,x.rev,x.cogs,prof,m,x.stock];})];
+    const blob=new Blob([toCSV(rows)],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='product_performance.csv'; a.click();
+  };
+}
+
+// results filter
+export function bindReportSearch(){
+  $('#repSearch').oninput = ()=>{
+    const q = $('#repSearch').value.toLowerCase();
+    ['dailyBody','prodPerfBody'].forEach(id=>{
+      [...document.getElementById(id).querySelectorAll('tr')].forEach(tr=>{
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  };
+}

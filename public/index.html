@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sahar-Al-Abeer POS — Sign in</title>
+
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <!-- REMOVE main.js (no longer needed) -->
+  <!-- <script src="main.js"></script> -->
+
+  <!-- 🔹 Init Firebase (compat) -->
+  <script>
+    // your project config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAuTUKlMxidK6ob3Y6G55wVMG7izTXNzTI",
+      authDomain: "sahar-al-abeer-pos.firebaseapp.com",
+      projectId: "sahar-al-abeer-pos",
+      storageBucket: "sahar-al-abeer-pos.firebasestorage.app",
+      messagingSenderId: "733241394315",
+      appId: "1:733241394315:web:f1c8267b741901af4fc08e"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    :root{ --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --accent:#0ea5e9; --accent-700:#0369a1; --border:#e2e8f0; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{ margin:0;background:linear-gradient(135deg,#eef2ff,#e6f8ff);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);display:grid;place-items:center;padding:20px;}
+    .card{ width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(2,6,23,.08);}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:700;box-shadow:0 6px 16px rgba(14,165,233,.35)}
+    h1{font-size:20px;margin:0 0 2px}.muted{color:var(--muted);font-size:13px;margin:0 0 18px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;outline:none;font-size:14px;background:#fff}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:10px}
+    .btn{width:100%;padding:12px;border:0;border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;transition:.15s}
+    .btn.primary{background:var(--accent);color:#fff}.btn.primary:hover{background:var(--accent-700)}
+    .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
+    .error{color:#ef4444;font-size:12px;margin-top:8px;min-height:16px}
+    .pwd-wrap{position:relative}.toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="logo">SA</div>
+      <div>
+        <h1>Sahar-Al-Abeer</h1>
+        <p class="muted">Sign in to continue</p>
+      </div>
+    </div>
+
+    <div>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="hassan@saharalabeer.com" autocomplete="username" />
+    </div>
+
+    <div style="margin-top:12px" class="pwd-wrap">
+      <label for="pass">Password</label>
+      <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+      <span id="togglePwd" class="toggle">Show</span>
+    </div>
+
+    <div class="row"><div class="muted" style="font-size:12px">Admin access for partners only</div></div>
+    <div id="err" class="error"></div>
+    <button id="loginBtn" class="btn primary" style="margin-top:8px">Login</button>
+    <div class="footer">© Sahar-Al-Abeer</div>
+  </div>
+
+  <script>
+    // auto-redirect if already signed in
+    firebase.auth().onAuthStateChanged(u => { if (u) location.href = 'home.html'; });
+
+    // show/hide password
+    const pass = document.getElementById('pass');
+    document.getElementById('togglePwd').onclick = () => {
+      const isPwd = pass.type === 'password';
+      pass.type = isPwd ? 'text' : 'password';
+      document.getElementById('togglePwd').textContent = isPwd ? 'Hide' : 'Show';
+    };
+
+    // login
+    const err = document.getElementById('err');
+    document.getElementById('loginBtn').onclick = async () => {
+      err.textContent = '';
+      const email = (document.getElementById('email').value || '').trim();
+      const pwd = (pass.value || '').trim();
+      if(!email || !pwd){ err.textContent = 'Please enter email and password.'; return; }
+      try{
+        await firebase.auth().signInWithEmailAndPassword(email, pwd);
+        location.href = 'home.html';
+      }catch(e){
+        err.textContent = (e.message || 'Login failed').replace('Firebase:', '').trim();
+      }
+    };
+
+    // enter key
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+  </script>
+</body>
+</html>
