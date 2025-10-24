@@ -193,6 +193,13 @@ export async function renderKPIs() {
   });
 })();
 
+document.getElementById('addExpense').onclick = async () => {
+  await addExpense();
+  _tableFilters?.forEach(fn => fn()); // keep search applied
+  await renderKPIs();
+};
+
+
 // also expose globally to avoid import cycles
 window.renderKPIs = renderKPIs;
 
