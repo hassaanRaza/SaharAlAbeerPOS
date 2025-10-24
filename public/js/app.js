@@ -38,6 +38,30 @@ $('#logoutBtn').onclick = async () => {
 // ---------------- Tabs ----------------
 switchTabs();
 
+// ---------- Simple live table filter ----------
+const _tableFilters = [];
+function setupFilter(inputId, tbodyId) {
+  const input = document.getElementById(inputId);
+  if (!input) return; // skip silently if that page doesn't have a search box
+
+  const apply = () => {
+    const q = input.value.trim().toLowerCase();
+    document
+      .querySelectorAll(`#${tbodyId} tr`)
+      .forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+  };
+
+  input.addEventListener('input', apply);
+  _tableFilters.push(apply);   // so we can re-apply after table re-renders
+}
+// Attach filters (only if those inputs exist on the page)
+setupFilter('salesSearch', 'salesBody');         // All Sales
+setupFilter('purchasesSearch', 'buysBody');      // All Purchases
+setupFilter('exSearch', 'exBody');               // Expenses (optional, see HTML below)
+
+
 const loaded = { sales: false, purchases: false };
 
 document.querySelectorAll('.tabs .tab').forEach((btn) => {
@@ -46,10 +70,12 @@ document.querySelectorAll('.tabs .tab').forEach((btn) => {
     if (tab === 'sales-all' && !loaded.sales) {
       await loadSales();
       loaded.sales = true;
+      _tableFilters.forEach(fn => fn());   // re-apply active filters
     }
     if (tab === 'purchases-all' && !loaded.purchases) {
       await loadPurchases();
       loaded.purchases = true;
+      _tableFilters.forEach(fn => fn());
     }
   });
 });
@@ -85,6 +111,7 @@ document.getElementById('btnSavePO').onclick = async () => {
   await savePO();
   await loadProducts();
   if (loaded.purchases) await loadPurchases();
+  _tableFilters.forEach(fn => fn());
   await renderKPIs();
 };
 
@@ -93,6 +120,7 @@ document.getElementById('btnSaveSale').onclick = async () => {
   await saveCart();
   await loadProducts();
   if (loaded.sales) await loadSales();
+  _tableFilters.forEach(fn => fn());
   await renderKPIs();
 };
 

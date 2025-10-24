@@ -44,16 +44,19 @@
         <div class="card kpi">
           <div class="muted">On-hand Stock Value</div>
           <div id="kpiStockVal" class="val">—</div>
+          <div class="muted sub">Current inventory value at average cost</div>
         </div>
 
         <div class="card kpi">
           <div class="muted">Total Revenue</div>
           <div id="kpiRevenue" class="val">—</div>
+          <div class="muted sub">Cumulative sales to date</div>
         </div>
 
         <div class="card kpi">
           <div class="muted">COGS (Moving Avg)</div>
           <div id="kpiCogs" class="val">—</div>
+          <div class="muted sub">Total cost of goods sold</div>
         </div>
 
         <div class="card kpi">
@@ -218,7 +221,7 @@
     <!-- PRODUCTS -->
     <section class="card" data-panel="products" style="display:none">
       <div class="row" style="margin-bottom:10px">
-        <input id="prodSearch" placeholder="Search products" style="max-width:280px">
+        <input id="prodSearch" placeholder="Search products by name" style="max-width:280px">
         <div class="spacer"></div>
         <button id="btnNew">New Product</button>
       </div>
@@ -257,6 +260,10 @@
         <div><label>Amount</label><input id="exAmt" type="number" min="1" /></div>
         <div><label>Note</label><input id="exNote" /></div>
         <div style="align-self:end"><button id="addExpense">Add Expense</button></div>
+      </div>
+      <!-- 👇 Add this new block for search -->
+      <div class="row" style="margin:8px 0">
+        <input id="exSearch" placeholder="Search (Date / Category / Note)" style="max-width:320px">
       </div>
       <div class="card table-wrap" style="padding:0;margin-top:12px">
         <table>
