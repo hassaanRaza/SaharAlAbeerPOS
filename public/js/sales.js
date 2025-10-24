@@ -84,8 +84,18 @@ export async function saveCart() {
     });
     setLastSaleId(sRef.id);
   }
+
+  // clear cart & form inputs
   cart.length = 0; renderCart(); updateTotals();
+  $('#saleHeaderDisc').value = '';
+  $('#saleCoupon').value = '';
+  $('#saleQty').value = 1;
+  $('#saleDisc').value = 0;
+
   notify.success(`Sale saved: ${orderId}`);
+
+  // Refresh KPIs live
+  window.renderKPIs?.();
 }
 
 // Invoice for last line

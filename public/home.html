@@ -22,47 +22,54 @@
   <div class="wrap">
     <div class="topbar">
       <h1>Sahar-Al-Abeer POS</h1>
+
       <div class="spacer"></div>
-      <div id="who" class="chip">Signed in</div>
-      <button id="logoutBtn" class="btn-logout">Logout</button>
+      <div class="topbar-actions">
+        <div id="who" class="chip">Signed in</div>
+        <button id="btnExport" class="ghost small">Export JSON</button>
+        <button id="logoutBtn" class="btn-logout">Logout</button>
+      </div>
     </div>
 
-    <div class="card row top-actions" style="gap:10px;align-items:center">
-      <button id="btnExport" class="ghost">Export JSON</button>
+    <!-- KPI header / toggle -->
+    <div class="row kpi-toolbar">
+      <div class="muted">Dashboard</div>
+      <div class="spacer"></div>
+      <button id="toggleKPI" class="ghost small">Hide dashboard ▲</button>
     </div>
-
     <!-- KPIs -->
+    <!-- KPIs (wrapped to allow collapse) -->
+    <div id="kpiWrap" class="kpi-wrap">
+      <div class="kpis">
+        <div class="card kpi">
+          <div class="muted">On-hand Stock Value</div>
+          <div id="kpiStockVal" class="val">—</div>
+        </div>
 
-    <div class="kpis">
-      <div class="card kpi">
-        <div class="muted">On-hand Stock Value</div>
-        <div id="kpiStockVal" class="val">—</div>
-      </div>
+        <div class="card kpi">
+          <div class="muted">Total Revenue</div>
+          <div id="kpiRevenue" class="val">—</div>
+        </div>
 
-      <div class="card kpi">
-        <div class="muted">Total Revenue</div>
-        <div id="kpiRevenue" class="val">—</div>
-      </div>
+        <div class="card kpi">
+          <div class="muted">COGS (Moving Avg)</div>
+          <div id="kpiCogs" class="val">—</div>
+        </div>
 
-      <div class="card kpi">
-        <div class="muted">COGS (Moving Avg)</div>
-        <div id="kpiCogs" class="val">—</div>
-      </div>
+        <div class="card kpi">
+          <div class="muted">Gross Profit / Share(÷4)</div>
+          <div id="kpiProfit" class="val">—</div>
+          <div id="kpiPartner" class="muted sub">—</div>
+        </div>
 
-      <div class="card kpi">
-        <div class="muted">Gross Profit / Share(÷4)</div>
-        <div id="kpiProfit" class="val">—</div>
-        <div id="kpiPartner" class="muted sub">—</div>
-      </div>
-
-      <div class="card kpi">
-        <div class="muted">Net Profit / Share(÷4)</div>
-        <div id="kpiNetProfit" class="val">—</div>
-        <div id="kpiNetPartner" class="muted sub"></div>
-        <div id="kpiNetNote" class="muted sub">—</div>
+        <div class="card kpi">
+          <div class="muted">Net Profit / Share(÷4)</div>
+          <div id="kpiNetProfit" class="val">—</div>
+          <div id="kpiNetPartner" class="muted sub"></div>
+          <div id="kpiNetNote" class="muted sub">—</div>
+        </div>
       </div>
     </div>
-
     <!-- Tabs -->
     <div class="tabs">
       <!-- Sales -->

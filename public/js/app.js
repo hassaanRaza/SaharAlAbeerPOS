@@ -22,7 +22,10 @@ import { products, lastSaleId } from './state.js';
 // ---------------- Auth guard + topbar ----------------
 onAuthStateChanged(auth, (u) => {
   if (!u) location.href = 'index.html';
-  else $('#who').textContent = `Signed in: ${asName(u.email)}`;
+  else {
+    const name = asName(u.email);
+    $('#who').textContent = `Signed in: ${name}`;
+  }
 });
 
 $('#logoutBtn').onclick = async () => {
@@ -31,8 +34,6 @@ $('#logoutBtn').onclick = async () => {
   await signOut(auth);
   location.href = '/';
 };
-
-window.renderKPIs = renderKPIs;
 
 // ---------------- Tabs ----------------
 switchTabs();
@@ -78,6 +79,7 @@ renderPO();
 renderCart();
 await renderKPIs();
 
+// ---------------- Quick actions ----------------
 document.getElementById('btnAddToPO').onclick = () => { addLineToPO(); };
 document.getElementById('btnSavePO').onclick = async () => {
   await savePO();
@@ -96,58 +98,75 @@ document.getElementById('btnSaveSale').onclick = async () => {
 
 document.getElementById('btnInvoice').onclick = () => invoice(lastSaleId);
 
-// ---------------- KPIs ----------------
-async function renderKPIs() {
-  // Stock value
+// ---------------- KPIs (client aggregates) ----------------
+export async function renderKPIs() {
+  // Calculate stock value
   const stockVal = products.reduce((s, p) => s + (p.stock || 0) * (p.avgCost || 0), 0);
 
   // --- Sales ---
   const sSnap = await getDocs(collection(db, 'sales'));
-  const s = sSnap.docs.map(d => d.data());
+  const s = sSnap.docs.map((d) => d.data());
   const revenue = s.reduce((x, y) => x + y.revenue, 0);
-  const cogs    = s.reduce((x, y) => x + (y.costAtSale * y.qty), 0);
-  const gp      = revenue - cogs;
+  const cogs = s.reduce((x, y) => x + (y.costAtSale * y.qty), 0);
+  const gp = revenue - cogs;
 
   // --- Expenses ---
   const eSnap = await getDocs(collection(db, 'expenses'));
-  const totalExpenses = eSnap.docs.reduce((sum, d) => sum + (Number(d.data().amount) || 0), 0);
+  const e = eSnap.docs.map((d) => d.data());
+  const totalExpenses = e.reduce((sum, row) => sum + (row.amount || 0), 0);
 
   // --- Net Profit ---
   const netProfit = gp - totalExpenses;
 
-  // Fill cards
+  // Update KPI cards
   $('#kpiStockVal').textContent = PKR(stockVal);
-  $('#kpiRevenue').textContent  = PKR(revenue);
-  $('#kpiCogs').textContent     = PKR(cogs);
+  $('#kpiRevenue').textContent = PKR(revenue);
+  $('#kpiCogs').textContent = PKR(cogs);
+  $('#kpiProfit').textContent = PKR(gp);
+  $('#kpiPartner').textContent = `Partner share (÷4): ${PKR(gp / 4)}`;
 
-  $('#kpiProfit').textContent   = PKR(gp);
-  $('#kpiPartner').textContent  = `Partner share (÷4): ${PKR(gp / 4)}`;
-
-  const netEl = document.getElementById('kpiNetProfit');
-  if (netEl) {
-    netEl.textContent = PKR(netProfit);
-    netEl.classList.toggle('negative', netProfit < 0);
-    netEl.classList.toggle('positive', netProfit >= 0);
+  const kpiNet = document.getElementById('kpiNetProfit');
+  const kpiNetShare = document.getElementById('kpiNetPartner');
+  const kpiNetNote = document.getElementById('kpiNetNote');
+  if (kpiNet) {
+    kpiNet.textContent = PKR(netProfit);
+    kpiNet.classList.toggle('negative', netProfit < 0);
   }
-
-  // NEW: Net profit note "Gross – Expenses"
-  const netNote = document.getElementById('kpiNetNote');
-  if (netNote) {
-    netNote.textContent = `Gross (${PKR(gp)}) – Expenses (${PKR(totalExpenses)})`;
+  if (kpiNetShare) {
+    kpiNetShare.textContent = `Partner share (÷4): ${PKR(netProfit / 4)}`;
   }
-
-  // If you also show partner share of net:
-  const netPartner = document.getElementById('kpiNetPartner');
-  if (netPartner) {
-    netPartner.textContent = `Partner share (÷4): ${PKR(netProfit / 4)}`;
+  if (kpiNetNote) {
+    kpiNetNote.textContent = `Gross (${PKR(gp)}) — Expenses (${PKR(totalExpenses)})`;
   }
 }
 
-// Make callable from other modules (e.g., after adding an expense)
-window.renderKPIs = renderKPIs;
+// --- KPI collapse/expand with persistence ---
+(function setupKpiToggle() {
+  const wrap = document.getElementById('kpiWrap');
+  const btn = document.getElementById('toggleKPI');
+  if (!wrap || !btn) return;
 
+  const KEY = 'kpiCollapsed';
+
+  function apply(isCollapsed) {
+    wrap.classList.toggle('collapsed', isCollapsed);
+    btn.textContent = isCollapsed ? 'Show dashboard ▼' : 'Hide dashboard ▲';
+  }
+
+  // restore last state
+  const saved = localStorage.getItem(KEY);
+  const startCollapsed = saved === '1';
+  apply(startCollapsed);
+
+  btn.addEventListener('click', () => {
+    const next = !wrap.classList.contains('collapsed');
+    apply(next);
+    localStorage.setItem(KEY, next ? '1' : '0');
+  });
+})();
+
+// also expose globally to avoid import cycles
+window.renderKPIs = renderKPIs;
 
 // ---------------- Reports ----------------
 document.getElementById('runReports').onclick = runReports;
-
-document.getElementById('addExpense').onclick = addExpense;

@@ -473,4 +473,116 @@ tr.sel {
     color: inherit;
 }
 
+/* KPI toolbar */
+.kpi-toolbar {
+    margin: 8px 0 6px;
+    align-items: center;
+}
+
+/* Small ghost button variant */
+button.small {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+/* Collapsible wrapper with animation */
+.kpi-wrap {
+    overflow: hidden;
+    transition: max-height 220ms ease-in-out, margin-bottom 220ms ease-in-out;
+    max-height: 1000px;
+    /* big enough to show full content */
+    margin-bottom: 12px;
+}
+
+.kpi-wrap.collapsed {
+    max-height: 0;
+    margin-bottom: 0;
+}
+
+/* Optional: red text when net is negative */
+.val.negative {
+    color: #d13636;
+}
+
+/* Optional: teeny explanatory note */
+.muted.tiny {
+    font-size: 12px;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.topbar .chip {
+    margin-left: 4px;
+}
+
+button.small {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+/* Make topbar wrap cleanly on phones */
+@media (max-width: 640px) {
+    .topbar {
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+
+    #btnExport {
+        order: 2;
+    }
+
+    /* keep order readable on small screens */
+    #who {
+        order: 3;
+    }
+
+    #logoutBtn {
+        order: 4;
+    }
+}
+
+/* --- Topbar layout --- */
+.topbar {
+  display: flex;
+  align-items: center;         /* vertically center everything */
+  gap: 12px;
+}
+
+/* Right-side group so spacing stays consistent */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Make Export JSON match Logout height & shape */
+#btnExport {
+  display: inline-flex;
+  align-items: center;         /* vertically center text */
+  height: 40px;                /* same as your Logout button */
+  padding: 0 14px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: #fff;
+  line-height: 1;              /* avoid extra vertical space */
+}
+
+/* Make the signed-in chip match heights visually */
+.topbar .chip {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+}
+
+/* (Optional) keep things nice on phones */
+@media (max-width: 640px) {
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .topbar-actions { width: 100%; justify-content: flex-end; }
+}
+
 /* default */
